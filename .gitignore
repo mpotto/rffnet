@@ -1,0 +1,8 @@
+# Data folders
+data/
+eval/
+figures/
+tables/
+
+!experiments/data
+
