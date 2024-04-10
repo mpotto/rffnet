@@ -6,6 +6,8 @@ __pycache__/
 # Data folders
 data/
 eval/
+tables/
+figures/
 
 !experiments/data
 
