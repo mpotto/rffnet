@@ -35,24 +35,25 @@ def bars(ax, origin, color, n, dataset, size):
 
 
 n = 2
-bars(ax1, 0 * (n + 2), "red", n, "GSE1", "5_000")
-bars(ax1, 1 * (n + 2), "orange", n, "GSE1", "10_000")
-bars(ax1, 2 * (n + 2), "teal", n, "GSE1", "20_000")
-ax1.text(-2.5, 0.5, "GSE1", va="bottom", ha="center")
+bars(ax1, 0 * (n + 2), "red", n, "gse1", "5_000")
+bars(ax1, 1 * (n + 2), "orange", n, "gse1", "10_000")
+bars(ax1, 2 * (n + 2), "teal", n, "gse1", "20_000")
+ax1.text(-2.5, 0.5, "gse1", va="bottom", ha="center")
 
-bars(ax2, 0 * (n + 2), "red", n, "GSE2", "5_000")
-bars(ax2, 1 * (n + 2), "orange", n, "GSE2", "10_000")
-bars(ax2, 2 * (n + 2), "teal", n, "GSE2", "20_000")
-ax2.text(-2.5, 0.5, "GSE2", va="bottom", ha="center")
+bars(ax2, 0 * (n + 2), "red", n, "gse2", "5_000")
+bars(ax2, 1 * (n + 2), "orange", n, "gse2", "10_000")
+bars(ax2, 2 * (n + 2), "teal", n, "gse2", "20_000")
+ax2.text(-2.5, 0.5, "gse2", va="bottom", ha="center")
 
 for ax in [ax1, ax2]:
     ax.axhline(0.5, 0.05, 1, color="0.5", linewidth=0.5, linestyle="--", zorder=-10)
     ax.axhline(1, 0.05, 1, color="0.5", linewidth=0.5, linestyle="--", zorder=-10)
+    ax.axhline(0.05, 0.05, 1, color="0.5", linewidth=0.5, linestyle="--", zorder=-10)
     ax.set_xlim(-1, 3 * (n + 2) - 1.5)
     ax.set_xticks([])
     ax.set_ylim(0, 1.0)
-    ax.set_yticks([0, 0.5, 1.0])
-    ax.set_yticklabels(["0%", "50%", "100%"])
+    ax.set_yticks([0.05, 0.5, 1.0])
+    ax.set_yticklabels(["5%", "50%", "100%"])
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["bottom"].set_visible(False)

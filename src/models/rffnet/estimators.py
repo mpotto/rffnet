@@ -116,7 +116,6 @@ class RFFNetRegressor(BaseEstimator, RegressorMixin):
         n_restarts=0,
         max_init_iter=10,
         warm_restart=True,
-        scale=None,
         max_iter=100,
         batch_size=32,
         lr=1e-3,
@@ -133,7 +132,6 @@ class RFFNetRegressor(BaseEstimator, RegressorMixin):
         self.n_restarts = n_restarts
         self.max_init_iter = max_init_iter
         self.warm_restart = warm_restart
-        self.scale = scale
         self.max_iter = max_iter
         self.batch_size = batch_size
         self.lr = lr
@@ -187,10 +185,10 @@ class RFFNetClassifier(BaseEstimator, ClassifierMixin):
         n_random_features=300,
         sampler=torch.randn,
         alpha=1e-4,
-        n_restarts=10,
+        n_restarts=0,
         max_init_iter=10,
-        max_iter=100,
         warm_restart=True,
+        max_iter=100,
         batch_size=32,
         lr=1e-3,
         early_stopping=True,

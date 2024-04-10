@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, KFold
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.utils.validation import check_array
-
 
 from experiments.utils import get_folder, run_model
 
@@ -14,16 +14,7 @@ parser.add_argument(
     "--dataset",
     "-d",
     default="",
-    choices=[
-        "amazon",
-        "higgs",
-        "compact",
-        "powerplant",
-        "abalone",
-        "ailerons",
-        "cpusmall",
-        "yearprediction",
-    ],
+    choices=["compact","abalone", "yearprediction", "powerplant", "amazon", "higgs", "w8a", "a9a"],
     help="Which synthetic dataset to use for the initialization experiment.",
 )
 parser.add_argument(
@@ -74,7 +65,7 @@ parser.add_argument(
     "--learning-rate",
     "-lr",
     type=float,
-    default=1e-3,
+    default=1e-2,
     help="Learning rate for the optimization algorithm.",
 )
 parser.add_argument(
@@ -107,7 +98,7 @@ N_ITER_NO_CHANGE = args.n_iter_no_change
 
 MEM_PROF = args.memory_profile
 
-if DATASET in ["amazon", "higgs"]:
+if DATASET in ["amazon", "higgs", "w8a", "a9a"]:
     is_classif = True
 else:
     is_classif = False
@@ -131,6 +122,15 @@ for i, (train_index, test_index) in enumerate(
     X_test = X_full[test_index]
     y_test = y_full[test_index]
 
+    if DATASET == "amazon":
+        X = X.flatten()
+        X_test = X_test.flatten()
+        tfidf = TfidfVectorizer(max_features=3000)
+        X = tfidf.fit_transform(X).toarray()
+        X_test = tfidf.transform(X_test).toarray()
+        features = tfidf.get_feature_names_out()
+        np.savetxt(f"{sim_benchmarks_folder}/{DATASET}_{MODEL}_{i}_features.csv", features, fmt="%s")
+        
     type_y = np.int64 if is_classif else np.float32
 
     X = check_array(X, ensure_2d=True, dtype=np.float32)
@@ -141,21 +141,13 @@ for i, (train_index, test_index) in enumerate(
     X = scaler.fit_transform(X)
     X_test = scaler.transform(X_test)
 
-    if MODEL == "srff":
-        X, X_val, y, y_val = train_test_split(X, y, test_size=0.1, random_state=0)
-        X_val = check_array(X_val, ensure_2d=True, dtype=np.float32)
-        y_val = check_array(y_val, ensure_2d=False, dtype=type_y)
-        X_val = scaler.transform(X_val)
-    else:
-        X_val, y_val = None, None
-
     if MEM_PROF:
         run = profile(run_model)
     else:
         run = run_model
 
     y_pred, relevances, fit_time, metrics = run(
-        X, y, X_val, y_val, X_test, y_test, MODEL, is_classif, seeds[i], args
+        X, y, X_test, y_test, MODEL, is_classif, seeds[i], args
     )
 
     preds_df = pd.DataFrame(columns=["preds", "target"])
@@ -168,8 +160,7 @@ for i, (train_index, test_index) in enumerate(
             f"{sim_benchmarks_folder}/{DATASET}_{MODEL}_{i}_relevances.csv",
             relevances,
         )
+    print(metrics)
 
     np.savetxt(f"{sim_benchmarks_folder}/{DATASET}_{MODEL}_{i}_metrics.csv", [metrics])
     np.savetxt(f"{sim_benchmarks_folder}/{DATASET}_{MODEL}_{i}_fittime.csv", [fit_time])
-
-    print(metrics, fit_time)

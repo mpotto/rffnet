@@ -56,8 +56,8 @@ def f(X_test, omega, b, w_1, w_2, beta):
 fig, (ax1, ax2) = plt.subplots(ncols=2, layout="constrained", sharey=True)
 
 # Plot 1
-n_samples1 = 200
-s1 = 100
+n_samples1 = 50
+s1 = 200
 
 omega1 = rng.standard_normal((2, s1))
 b1 = rng.uniform(low=0, high=2 * np.pi, size=s1)
@@ -89,7 +89,7 @@ ax1.scatter(-W_STAR, -W_STAR, color="k", s=5, zorder=10)
 
 # Plot 1
 n_samples2 = 1000
-s2 = 500
+s2 = 200
 
 omega2 = rng.standard_normal((2, s2))
 b2 = rng.uniform(low=0, high=2 * np.pi, size=s2)
@@ -106,7 +106,6 @@ for i in range(n_plot):
     for j in range(n_plot):
         beta = z(X, omega2, b2, w_1[i], w_2[j]).T @ alpha
         Z[i, j] = np.mean(np.square(f_star - f(X_test, omega2, b2, w_1[i], w_2[j], beta)))
-
 
 p2 = ax2.pcolor(W_1, W_2, np.log10(Z), cmap="RdBu_r", zorder=0, vmin=-3, vmax=0.0)
 

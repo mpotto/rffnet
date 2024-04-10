@@ -17,7 +17,7 @@ if IS_CLASSIF:
     MODELS = ["rffnet", "eigenpro", "fastfood", "nystroem"]
 else:
     DATASETS = ["compact", "abalone", "yearprediction", "powerplant"]
-    MODELS = ["rffnet", "eigenpro", "fastfood", "nystroem", "srff", "kernel_ridge"]
+    MODELS = ["rffnet", "eigenpro", "fastfood", "nystroem", "gpr", "srff", "kernel_ridge"]
 
 real_benchmarks_folder = "eval/real_world_benchmarks"
 
@@ -28,7 +28,7 @@ for dataset in DATASETS:
     for model in MODELS:
         if dataset in ["amazon", "higgs"] and model in ["eigenpro"]:
             pass
-        elif dataset == "yearprediction" and model in ["eigenpro", "kernel_ridge"]:
+        elif dataset == "yearprediction" and model in ["eigenpro", "kernel_ridge", "gpr"]:
             pass
         else:
             metrics = []

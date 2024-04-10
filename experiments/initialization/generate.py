@@ -9,7 +9,7 @@ from experiments.utils import get_folder, get_generator
 from src.models.rffnet.estimators import RFFNetEstimator
 from src.models.rffnet.initialization import Constant, Regressor, Restarter
 from src.models.rffnet.penalties import L2, Null
-from src.models.rffnet.solvers import PALM
+from src.models.rffnet.solvers import SingleBlock
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -22,10 +22,9 @@ parser.add_argument(
         "jse1",
         "jse2",
         "jse3",
-        "piironen",
-        "classification",
-        "circles",
         "moons",
+        "circles",
+        "classification",
     ],
     help="Which synthetic dataset to use for the initialization experiment.",
 )
@@ -39,17 +38,17 @@ parser.add_argument(
 parser.add_argument(
     "--n-random-features",
     type=int,
-    default=200,
+    default=300,
     help="Number of random Fourier features in the RFFNet model.",
 )
 parser.add_argument(
     "--alpha",
     type=float,
-    default=1e-4,
+    default=0.1,
     help="Regularization strength for the L2 penalty on the expansion weights.",
 )
 parser.add_argument(
-    "--n-runs", default=50, type=int, help="Number of MC runs in the experiment."
+    "--n-runs", default=10, type=int, help="Number of MC runs in the experiment."
 )
 parser.add_argument(
     "--max-iter",
@@ -113,7 +112,7 @@ generator = get_generator(DATASET)
 seed_sequence = np.random.SeedSequence(entropy=0)
 seeds = seed_sequence.generate_state(N_RUNS)
 
-if DATASET in ["classification", "circles", "moons"]:
+if DATASET in ["moons", "circles", "classification"]:
     datafit = torch.nn.CrossEntropyLoss()
 else:
     datafit = torch.nn.MSELoss()
@@ -144,13 +143,14 @@ for strategy in ["constant", "restarter", "regressor"]:
 
         X = scaler.fit_transform(X)
 
-        solver = PALM(
+        solver = SingleBlock(
+            torch.optim.Adam,
             batch_size=BATCH_SIZE,
             lr=LR,
             max_iter=MAX_ITER,
             validation_fraction=2_000,
             early_stopping=False,
-            verbose=True,
+            verbose=False,
             random_state=seed,
         )
 

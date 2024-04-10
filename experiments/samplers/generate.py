@@ -10,7 +10,7 @@ from experiments.utils import get_folder, get_generator
 from src.models.rffnet.estimators import RFFNetEstimator
 from src.models.rffnet.initialization import Constant
 from src.models.rffnet.penalties import L2, Null
-from src.models.rffnet.solvers import PALM
+from src.models.rffnet.solvers import SingleBlock
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -23,10 +23,9 @@ parser.add_argument(
         "jse1",
         "jse2",
         "jse3",
-        "piironen",
-        "classification",
-        "circles",
         "moons",
+        "circles",
+        "classification",
     ],
     help="Which synthetic dataset to use for the initialization experiment.",
 )
@@ -50,7 +49,7 @@ parser.add_argument(
     help="Regularization strength for the L2 penalty on the expansion weights.",
 )
 parser.add_argument(
-    "--n-runs", default=50, type=int, help="Number of MC runs in the experiment."
+    "--n-runs", default=10, type=int, help="Number of MC runs in the experiment."
 )
 parser.add_argument(
     "--max-iter",
@@ -90,13 +89,13 @@ LR = args.learning_rate
 samplers_folder = get_folder("eval/samplers")
 
 generator = get_generator(DATASET)
-X, _ = generator(n_samples=1)
+X, _ = generator(n_samples=3)
 n_features = X.shape[1]
 
 seed_sequence = np.random.SeedSequence(entropy=0)
 seeds = seed_sequence.generate_state(N_RUNS)
 
-if DATASET in ["classification", "circles", "moons"]:
+if DATASET in ["moons", "circles", "classification"]:
     datafit = torch.nn.CrossEntropyLoss()
 else:
     datafit = torch.nn.MSELoss()
@@ -130,13 +129,14 @@ for sampler_name in ["cauchy", "laplace", "normal"]:
 
         X = scaler.fit_transform(X)
 
-        solver = PALM(
+        solver = SingleBlock(
+            torch.optim.Adam,
             batch_size=BATCH_SIZE,
             lr=LR,
             max_iter=MAX_ITER,
-            early_stopping=False,
             validation_fraction=2_000,
-            verbose=True,
+            early_stopping=False,
+            verbose=False,
             random_state=seed,
         )
 

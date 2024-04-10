@@ -269,3 +269,37 @@ def srf_run(X_train, y_train, X_val, y_val, X_test, y_test):
     test_results_map["error"] = np.asarray([test_error])
 
     return train_results_map, valid_results_map, test_results_map
+
+
+def srf_run_modified(X_train, y_train, X_test, y_test, alpha):
+    # The maximal eigenvalue of X^T X seems to be important
+    # for scaling the choice of lambdas in the validation grid
+    sigma = normest(torch.transpose(X_train, 1, 0).mm(X_train))
+
+    train_results_map = [{}]
+
+    init_time = time.time()
+    train_results_map[0] = srf_algo(X_train, y_train, alpha)
+    srf_time = (time.time() - init_time) * 1e3
+
+    # Log time
+    train_results_map[0]["time"] = srf_time
+
+    test_results_map = {
+        "lambda": alpha,
+        "gamma": train_results_map[0]["gamma"],
+        "a": train_results_map[0]["a"],
+        "b": train_results_map[0]["b"],
+        "omg": train_results_map[0]["omg"],
+    }
+
+    ones_mat = torch.ones([X_test.size(0), 1])
+    Z_test = torch.cos(
+        X_test.mm(torch.transpose(test_results_map["omg"], 1, 0))
+        + ones_mat.mm(torch.transpose(test_results_map["b"], 1, 0))
+    )
+    test_preds, test_error = predict_linear(Z_test, y_test, test_results_map["a"])
+    test_results_map["preds"] = test_preds
+    test_results_map["error"] = test_error.item()
+
+    return train_results_map, test_results_map

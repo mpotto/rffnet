@@ -1,0 +1,13 @@
+\begin{tabular}{lllll}
+\toprule
+Model & abalone & compact & powerplant & yearprediction \\
+\midrule
+EigenPro & $2.036 \pm 0.018$ & $3.218 \pm 0.075$ & $26.016 \pm 0.056$ & NaN \\
+Fastfood & $0.006 \pm 0.001$ & $0.012 \pm 0.001$ & $0.062 \pm 0.001$ & $3.431 \pm 0.013$ \\
+Kernel Ridge & $0.183 \pm 0.007$ & $0.865 \pm 0.009$ & $65.332 \pm 0.086$ & NaN \\
+Nyström & $0.004 \pm 0.00$ & $0.008 \pm 0.00$ & $0.035 \pm 0.00$ & $1.806 \pm 0.003$ \\
+RFFNet & $0.607 \pm 0.125$ & $1.707 \pm 0.571$ & $12.563 \pm 1.983$ & $84.319 \pm 15.361$ \\
+SRFF & $15.343 \pm 5.339$ & $2.898 \pm 1.456$ & $71.513 \pm 72.241$ & $265.975 \pm 140.602$ \\
+gpr & $17.864 \pm 0.123$ & $78.957 \pm 0.367$ & $1878.938 \pm 0.454$ & NaN \\
+\bottomrule
+\end{tabular}

@@ -2,6 +2,7 @@ import argparse
 
 import pandas as pd
 import numpy as np
+from sklearn.datasets import make_gaussian_quantiles
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_array
@@ -21,11 +22,9 @@ parser.add_argument(
         "jse3",
         "moons",
         "circles",
-        "blobs",
-        "hastie_10_2",
         "classification",
     ],
-    help="Which synthetic dataset to use for the initialization experiment.",
+    help="Which synthetic dataset to use for the simulation experiments.",
 )
 parser.add_argument(
     "--model",
@@ -55,17 +54,17 @@ parser.add_argument(
 parser.add_argument(
     "--n-random-features",
     type=int,
-    default=200,
+    default=300,
     help="Number of random Fourier features in the RFFNet model.",
 )
 parser.add_argument(
     "--alpha",
     type=float,
-    default=1e-4,
+    default=0.1,
     help="Regularization strength for the L2 penalty on the expansion weights.",
 )
 parser.add_argument(
-    "--n-runs", default=20, type=int, help="Number of MC runs in the experiment."
+    "--n-runs", default=10, type=int, help="Number of MC runs in the experiment."
 )
 parser.add_argument(
     "--max-iter",
@@ -119,12 +118,13 @@ N_ITER_NO_CHANGE = args.n_iter_no_change
 
 MEM_PROF = args.memory_profile
 
-if DATASET in ["moons", "circles", "blobs", "hastie_10_2", "classification"]:
+if DATASET in ["moons", "circles", "classification"]:
     is_classif = True
 else:
     is_classif = False
 
 sim_benchmarks_folder = get_folder("eval/simulated_benchmarks")
+
 generator = get_generator(DATASET)
 
 seed_sequence = np.random.SeedSequence(entropy=0)
@@ -134,21 +134,17 @@ scaler = StandardScaler()
 
 
 for i, seed in enumerate(seeds):
-    X, y = generator(n_samples=N_SAMPLES + 4000, random_state=seed)
-    X, X_val, y, y_val = train_test_split(X, y, test_size=2000, random_state=seed)
+    X, y = generator(n_samples=N_SAMPLES + 2000, random_state=seed)
     X, X_test, y, y_test = train_test_split(X, y, test_size=2000, random_state=seed)
 
     type_y = np.int64 if is_classif else np.float32
 
     X = check_array(X, ensure_2d=True, dtype=np.float32)
     y = check_array(y, ensure_2d=False, dtype=type_y)
-    X_val = check_array(X_val, ensure_2d=True, dtype=np.float32)
-    y_val = check_array(y_val, ensure_2d=False, dtype=type_y)
     X_test = check_array(X_test, ensure_2d=True, dtype=np.float32)
     y_test = check_array(y_test, ensure_2d=False, dtype=type_y)
 
     X = scaler.fit_transform(X)
-    X_val = scaler.transform(X_val)
     X_test = scaler.transform(X_test)
 
     if MEM_PROF:
@@ -157,7 +153,7 @@ for i, seed in enumerate(seeds):
         run = run_model
 
     y_pred, relevances, fit_time, metrics = run(
-        X, y, X_val, y_val, X_test, y_test, MODEL, is_classif, seed, args
+        X, y, X_test, y_test, MODEL, is_classif, seed, args
     )
 
     preds_df = pd.DataFrame(columns=["preds", "target"])

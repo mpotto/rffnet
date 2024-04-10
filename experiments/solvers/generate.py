@@ -21,10 +21,9 @@ parser.add_argument(
         "jse1",
         "jse2",
         "jse3",
-        "piironen",
-        "classification",
-        "circles",
         "moons",
+        "circles",
+        "classification",
     ],
     help="Which synthetic dataset to use for the initialization experiment.",
 )
@@ -48,7 +47,7 @@ parser.add_argument(
     help="Regularization strength for the L2 penalty on the expansion weights.",
 )
 parser.add_argument(
-    "--n-runs", default=50, type=int, help="Number of MC runs in the experiment."
+    "--n-runs", default=10, type=int, help="Number of MC runs in the experiment."
 )
 parser.add_argument(
     "--max-iter",
@@ -70,6 +69,12 @@ parser.add_argument(
     default=1e-3,
     help="Learning rate for the optimization algorithm.",
 )
+parser.add_argument(
+    "--verbose",
+    action="store_true",
+    help="Enable optimizers' verbosity."
+)
+
 
 args = parser.parse_args()
 
@@ -85,15 +90,17 @@ MAX_ITER = args.max_iter
 BATCH_SIZE = args.batch_size
 LR = args.learning_rate
 
+VERBOSE = args.verbose
+
 solvers_folder = get_folder("eval/solvers")
 generator = get_generator(DATASET)
-X, _ = generator(n_samples=1)
+X, _ = generator(n_samples=3)
 n_features = X.shape[1]
 
 seed_sequence = np.random.SeedSequence(entropy=0)
 seeds = seed_sequence.generate_state(N_RUNS)
 
-if DATASET in ["classification", "circles", "moons"]:
+if DATASET in ["moons", "circles", "classification"]:
     datafit = torch.nn.CrossEntropyLoss()
 else:
     datafit = torch.nn.MSELoss()
@@ -116,7 +123,7 @@ for solver_name in ["sgd", "adam", "palm-sgd", "palm-adam"]:
                 max_iter=MAX_ITER,
                 validation_fraction=2_000,
                 early_stopping=False,
-                verbose=True,
+                verbose=VERBOSE,
                 random_state=seed,
             )
 
@@ -128,7 +135,7 @@ for solver_name in ["sgd", "adam", "palm-sgd", "palm-adam"]:
                 max_iter=MAX_ITER,
                 validation_fraction=2_000,
                 early_stopping=False,
-                verbose=True,
+                verbose=VERBOSE,
                 random_state=seed,
             )
 
@@ -140,7 +147,7 @@ for solver_name in ["sgd", "adam", "palm-sgd", "palm-adam"]:
                 max_iter=MAX_ITER,
                 validation_fraction=2_000,
                 early_stopping=False,
-                verbose=True,
+                verbose=VERBOSE,
                 random_state=seed,
             )
 
@@ -152,7 +159,7 @@ for solver_name in ["sgd", "adam", "palm-sgd", "palm-adam"]:
                 max_iter=MAX_ITER,
                 validation_fraction=2_000,
                 early_stopping=False,
-                verbose=True,
+                verbose=VERBOSE,
                 random_state=seed,
             )
 
@@ -175,8 +182,8 @@ for solver_name in ["sgd", "adam", "palm-sgd", "palm-adam"]:
         relevances[:, i] = model.relevances_
 
     np.save(
-        f"{solvers_folder}/{DATASET}_{N_SAMPLES}_{solver_name}_histories.npy", results
+        f"{solvers_folder}/{DATASET}_{N_SAMPLES}_{solver_name}_history.npy", results
     )
     np.save(
-        f"{solvers_folder}/{DATASET}_{N_SAMPLES}_{solver_name}_relevances.npy", results
+        f"{solvers_folder}/{DATASET}_{N_SAMPLES}_{solver_name}_relevances.npy", relevances
     )

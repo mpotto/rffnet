@@ -10,6 +10,6 @@ fi
 declare -a subdirs=("eval/simulated_benchmarks" "eval/real_world_benchmarks" "figures")
 for subdir in "${subdirs[@]}"
 do 
-    cmd="mkdir -p $subdir$
+    cmd="mkdir -p $subdir"
     echo "$cmd"; $cmd
 done

@@ -1,0 +1,10 @@
+\begin{tabular}{lllll}
+\toprule
+Model & classification & moons \\
+\midrule
+EigenPro & $447.761 \pm 3.525$ & $437.864 \pm 7.465$ \\
+Fastfood & $557.096 \pm 59.894$ & $543.893 \pm 69.235$ \\
+Nyström & $529.239 \pm 55.554$ & $524.916 \pm 61.374$ \\
+RFFNet & $449.875 \pm 6.953$ & $441.696 \pm 9.223$ \\
+\bottomrule
+\end{tabular}

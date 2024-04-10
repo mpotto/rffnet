@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from sklearn_extra.kernel_methods import EigenProClassifier, EigenProRegressor
 from sklearn_extra.kernel_approximation import Fastfood
-from sklearn.datasets import make_moons, make_circles, make_blobs, make_hastie_10_2, make_classification
+from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.kernel_approximation import Nystroem
 from sklearn.kernel_ridge import KernelRidge
@@ -21,7 +21,7 @@ from skorch.probabilistic import ExactGPRegressor
 from src.models.gpr.gpr import ARDModule
 from src.models.rffnet.estimators import RFFNetRegressor, RFFNetClassifier
 from src.models.rffnet.module import RFFLayer
-from src.models.srff.srff import srf_run
+from src.models.srff.srff import srf_run_modified
 
 import numpy as np
 
@@ -31,11 +31,10 @@ from src.models.rffnet.utils.datasets import (
     make_jordan_se1,
     make_jordan_se2,
     make_jordan_se3,
-    make_piironen,
 )
 
 
-def run_model(X, y, X_val, y_val, X_test, y_test, model, is_classif, seed, args):
+def run_model(X, y, X_test, y_test, model, is_classif, seed, args):
     n_features = X.shape[1]
 
     if is_classif:
@@ -273,13 +272,9 @@ def run_model(X, y, X_val, y_val, X_test, y_test, model, is_classif, seed, args)
             y = torch.from_numpy(y.reshape(-1, 1)).float()
             X_test = torch.from_numpy(X_test).float()
             y_test = torch.from_numpy(y_test.reshape(-1, 1)).float()
-            X_val = torch.from_numpy(X_val).float()
-            y_val = torch.from_numpy(y_val.reshape(-1, 1)).float()
 
-            train_results, _, test_results = srf_run(X, y, X_val, y_val, X_test, y_test)
-            fit_time = np.array(
-                [train_results[i]["time"] / 1e3 for i in range(len(train_results))]
-            )
+            train_results, test_results = srf_run_modified(X, y, X_test, y_test, args.alpha)
+            fit_time = train_results[0]["time"] / 1e3
             relevances = test_results["gamma"].detach().numpy()
 
         if model == "nn":
@@ -399,20 +394,11 @@ def get_generator(dataset):
     if dataset == "jse3":
         generator = make_jordan_se3
 
-    if dataset == "piironen":
-        generator = make_piironen
-
     if dataset == "moons":
         generator = make_moons
 
     if dataset == "circles":
         generator = make_circles
-
-    if dataset == "blobs":
-        generator = make_blobs
-
-    if dataset == "hastie_10_2":
-        generator = make_hastie_10_2
 
     if dataset == "classification":
         generator = make_classification
@@ -432,9 +418,6 @@ def get_support(dataset):
 
     if dataset in ["jse2", "jse3"]:
         support = np.array([0, 1])
-
-    if dataset == "piironen":
-        support = np.arange(0, 8)
 
     return support
 

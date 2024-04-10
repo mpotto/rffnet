@@ -1,0 +1,10 @@
+\begin{tabular}{lllll}
+\toprule
+Model & classification & moons \\
+\midrule
+EigenPro & $0.959 \pm 0.023$ & $1.00 \pm 0.00$ \\
+Fastfood & $0.96 \pm 0.018$ & $1.00 \pm 0.00$ \\
+Nyström & $0.964 \pm 0.02$ & $1.00 \pm 0.00$ \\
+RFFNet & $0.98 \pm 0.016$ & $1.00 \pm 0.00$ \\
+\bottomrule
+\end{tabular}

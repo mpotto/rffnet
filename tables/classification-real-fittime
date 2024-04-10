@@ -1,0 +1,10 @@
+\begin{tabular}{lllll}
+\toprule
+Model & a9a & amazon & higgs & w8a \\
+\midrule
+EigenPro & $31.886 \pm 0.065$ & NaN & NaN & $89.453 \pm 0.212$ \\
+Fastfood & $1.659 \pm 0.144$ & $116.829 \pm 21.278$ & $1495.365 \pm 10.466$ & $2.988 \pm 0.032$ \\
+Nyström & $1.013 \pm 0.019$ & $13.208 \pm 0.676$ & $378.041 \pm 122.552$ & $1.345 \pm 0.033$ \\
+RFFNet & $3.226 \pm 1.118$ & $109.041 \pm 40.542$ & $800.508 \pm 310.327$ & $4.023 \pm 1.625$ \\
+\bottomrule
+\end{tabular}

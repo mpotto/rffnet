@@ -6,43 +6,28 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
-from experiments.utils import get_folder
+from experiments.utils import get_folder, get_generator, get_support
 from src.models.rffnet.estimators import RFFNetEstimator
 from src.models.rffnet.initialization import Constant
 from src.models.rffnet.penalties import L2, Null
-from src.models.rffnet.solvers import PALM
+from src.models.rffnet.solvers import SingleBlock
 from src.models.rffnet.selection import SelectTopK
-from src.models.rffnet.utils.datasets import make_correlated_data
 
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--dataset",
+    "-d",
+    type=str,
+    default="gse1",
+    choices=["gse1", "gse2", "jse2", "jse3"],
+    help="Dataset for the selection experiment."
+)
 parser.add_argument(
     "--n-samples",
     "-n",
     type=int,
     default=1000,
-    help="Number of training samples in the dataset.",
-)
-parser.add_argument(
-    "--n-features",
-    "-p",
-    type=int,
-    default=1000,
-    help="Number of features in the dataset.",
-)
-parser.add_argument(
-    "--rho", type=float, default=0.4, help="Correlation between features."
-)
-parser.add_argument(
-    "--density",
-    type=float,
-    default=0.2,
-    help="Density of the weight vector in the linear correlation dataset.",
-)
-parser.add_argument(
-    "--noise-level",
-    type=float,
-    default=0.1,
-    help="Noise level for generated datasets.",
+    help="Number of training samples in the dataset."
 )
 parser.add_argument(
     "--n-random-features",
@@ -53,11 +38,11 @@ parser.add_argument(
 parser.add_argument(
     "--alpha",
     type=float,
-    default=1e-4,
+    default=1,
     help="Regularization strength for the L2 penalty on the expansion weights.",
 )
 parser.add_argument(
-    "--n-runs", default=50, type=int, help="Number of MC runs in the experiment."
+    "--n-runs", default=10, type=int, help="Number of MC runs in the experiment."
 )
 parser.add_argument(
     "--max-iter",
@@ -89,10 +74,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 N_SAMPLES = args.n_samples
-N_FEATURES = args.n_features
-RHO = args.rho
-DENSITY = args.density
-NOISE_LEVEL = args.noise_level
+DATASET = args.dataset
 
 N_RANDOM_FEATURES = args.n_random_features
 ALPHA = args.alpha
@@ -105,6 +87,8 @@ LR = args.learning_rate
 N_ITER_NO_CHANGE = args.n_iter_no_change
 
 selection_folder = get_folder("eval/selection")
+generator = get_generator(DATASET)
+support = get_support(DATASET)
 
 seed_sequence = np.random.SeedSequence(entropy=0)
 seeds = seed_sequence.generate_state(N_RUNS)
@@ -118,12 +102,8 @@ scaler = StandardScaler()
 results = np.zeros((N_RUNS, 2))
 
 for i, seed in enumerate(seeds):
-    X, y, w_true = make_correlated_data(
+    X, y = generator(
         n_samples=N_SAMPLES + 2_000,
-        n_features=N_FEATURES,
-        rho=RHO,
-        noise_level=NOISE_LEVEL,
-        density=DENSITY,
         random_state=seed,
     )
     X, X_s, y, y_s = train_test_split(X, y, test_size=2_000, random_state=seed)
@@ -133,7 +113,7 @@ for i, seed in enumerate(seeds):
 
     torch.manual_seed(seed)
 
-    solver = PALM(
+    solver = SingleBlock(
         batch_size=BATCH_SIZE,
         lr=LR,
         max_iter=MAX_ITER,
@@ -161,7 +141,6 @@ for i, seed in enumerate(seeds):
     best_relevances = best_estimator.relevances_
 
     nz_relevances = np.nonzero(best_relevances)
-    support = np.nonzero(w_true.flatten())
 
     support_mask = np.zeros(best_relevances.shape[0], dtype=np.int32)
     relevances_mask = np.zeros(best_relevances.shape[0], dtype=np.int32)
@@ -175,8 +154,8 @@ for i, seed in enumerate(seeds):
 
     results[i, 0] = fpr
     results[i, 1] = tpr
-
+    
 
 np.save(
-    f"{selection_folder}/{N_SAMPLES}_{N_FEATURES}_{RHO:.1f}_{DENSITY:.1f}.npy", results
+    f"{selection_folder}/{DATASET}_{N_SAMPLES}.npy", results
 )

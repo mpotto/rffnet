@@ -135,3 +135,26 @@ def make_rodeo_se2(n_samples=300, noise_level=1, random_state=None):
     )
 
     return X, y
+
+
+def make_chen_se1(n_samples=300, n_features=50, noise_level=0.1, random_state=None):
+    rng = check_random_state(random_state)
+
+    X = rng.randn(n_samples, n_features)
+
+    y = (
+        0.1 * (X[:, 0] + X[:, 1] + X[:, 2]) ** 3
+        + np.tanh(X[:, 0] + X[:, 2] + X[:, 4])
+        + noise_level * rng.randn(n_samples)
+    )
+    return X, y
+
+
+def make_fully_redundant(n_samples=300, n_features=2, noise_level=0.1, random_state=None):
+    rng = check_random_state(random_state)
+
+    X = np.tile(rng.randn(n_samples, 1), (1, n_features))
+
+    y = X[:, 0] + X[:, 1] + X[:, 2] + 5 * X[:, 3] + noise_level * rng.randn(n_samples)
+
+    return X, y

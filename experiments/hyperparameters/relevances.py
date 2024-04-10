@@ -69,5 +69,5 @@ fig.legend(
     frameon=False,
 )
 fig.supylabel("Relevances")
-plt.savefig(f"figures/alpha_{DATASET}_{N_SAMPLES}.pdf")
+#  plt.savefig(f"figures/alpha_{DATASET}_{N_SAMPLES}.pdf")
 plt.show()
