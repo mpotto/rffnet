@@ -124,9 +124,9 @@ ax2.scatter(-w_star[0], -w_star[1], color="k", s=5, zorder=10)
 cbar = fig.colorbar(p2, ax=ax2, shrink=0.5, aspect=10)
 cbar.set_label("Log MSE")
 
-# plt.savefig(
-#     f"figures/population_{N_SAMPLES}_{N_RANDOM_FEATURES}_w_star.pdf",
-#     bbox_inches="tight",
-# )
+plt.savefig(
+    f"figures/population_{N_SAMPLES}_{N_RANDOM_FEATURES}_w_star.pdf",
+    bbox_inches="tight",
+)
 
 plt.show()

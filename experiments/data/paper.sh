@@ -8,7 +8,6 @@ python experiments/data/download.py -d powerplant
 python experiments/data/download.py -d a9a
 python experiments/data/download.py -d w8a
 python experiments/data/download.py -d higgs
-python experiments/data/download.py -d amazon
 
 # Process all datasets
 python experiments/data/process.py -d compact
