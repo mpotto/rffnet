@@ -17,11 +17,11 @@
 
 ### Tables 1, F.7, F.11
 
-* Run`/experiments/simulated_benchmarks/paper.sh` and `/experiments/simulated_benchmarks/table.py`.
+* Run`experiments/simulated_benchmarks/paper.sh` and `experiments/simulated_benchmarks/table.py`.
 
 ### Tables 2, F.8, F.12
 
-* Run `/experiments/simulated_benchmarks/table.py --classication`.
+* Run `experiments/simulated_benchmarks/table.py --classication`.
 
 ### Table 3, F.9, F.13
 
